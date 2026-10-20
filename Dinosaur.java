@@ -1,5 +1,9 @@
 
-/** Represents a dinosaur in the Dinosaur Data Management System
+/** Edgar Lopez
+ * CEN 3024C - Software Development 1
+ * October 19, 2026
+ * Dinosaur.java
+ * Represents a dinosaur in the Dinosaur Data Management System
  * Stores the dinosaur's identifying information and physical attributes
  */
 public class Dinosaur {

@@ -2,7 +2,11 @@
 import java.util.List;
 import java.util.Scanner;
 
-/** Provides the command-line interface for the Dinosaur DMS
+/** Edgar Lopez
+ * CEN 3024C - Software Development 1
+ * October 19, 2026
+ * DinosaurCLI.java
+ * Provides the command-line interface for the Dinosaur DMS
  * Displays the menu, collects input, and presents results
  */
 public class DinosaurCLI {

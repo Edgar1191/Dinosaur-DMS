@@ -1,5 +1,8 @@
 
-/**
+/** Edgar Lopez
+ * CEN 3024C - Software Development 1
+ * October 19, 2026
+ * Main.app
  * Entry point for the Dinosaur Data Management System
  * Creates the application components and starts the CLI
  */

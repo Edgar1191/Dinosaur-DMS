@@ -6,7 +6,11 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Reads dinosaur records from a text file
+/** Edgar Lopez
+ * CEN 3024C - Software Development 1
+ * October 19, 2026
+ * DinosaurFileReader.java
+ * Reads dinosaur records from a text file
  *
  * Expected format for each line:
  * name|timePeriod|diet|clade|fossilLocation|size

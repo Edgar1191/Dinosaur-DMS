@@ -2,7 +2,11 @@
 import java.util.ArrayList;
 import java.util.List;
 
-/** Manages the dinosaur collection and provides operations for creating, reading, updating, deleting,
+/** Edgar Lopez
+ * CEN 3024C - Software Development 1
+ * October 19, 2026
+ * DinosaurManager.java
+ * Manages the dinosaur collection and provides operations for creating, reading, updating, deleting,
  * and searching records
  */
 public class DinosaurManager {
