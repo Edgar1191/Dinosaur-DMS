@@ -153,6 +153,11 @@ public class DinosaurCLI {
             return null;
         }
 
+        if (manager.findDinosaur(name) != null) {
+            System.out.println("A dinosaur with that name already exists.");
+            return null;
+        }
+
         String timePeriod = promptForText("Time period: ");
         if (timePeriod == null) {
             return null;
@@ -230,7 +235,8 @@ public class DinosaurCLI {
         }
     }
 
-    /** Removes a dinosaur selected by name
+
+    /** Removes a dinosaur selected by name after confirmation
      *
      * @return a message describing the result
      */
@@ -242,14 +248,31 @@ public class DinosaurCLI {
             return "Dinosaur name cannot be blank.";
         }
 
+        Dinosaur dinosaur = manager.findDinosaur(name);
+
+        if (dinosaur == null) {
+            return "No dinosaur named '" + name + "' was found.";
+        }
+
+        System.out.println("You are about to remove:");
+        System.out.println(dinosaur);
+
+        System.out.print("Are you sure you want to delete this dinosaur? (y/n): ");
+        String confirmation = scanner.nextLine().trim();
+
+        if (!confirmation.equalsIgnoreCase("y")) {
+            return "Delete cancelled. The dinosaur was not removed.";
+        }
+
         if (manager.removeDinosaur(name)) {
             return "Dinosaur removed successfully.";
         }
 
-        return "No dinosaur named '" + name + "' was found.";
+        return "The dinosaur could not be removed.";
     }
 
-    /** Updates an existing dinosaur's attributes
+
+    /** Updates one field of an existing dinosaur
      *
      * @return a message describing the result
      */
@@ -267,37 +290,136 @@ public class DinosaurCLI {
             return "No dinosaur named '" + name + "' was found.";
         }
 
-        System.out.println("Current record:\n" + existing);
-        System.out.println("Enter the replacement information.");
+        System.out.println("\nCurrent record:");
+        System.out.println(existing);
 
-        Dinosaur replacement = promptForDinosaur();
+        System.out.println("\nWhat would you like to update?");
+        System.out.println("1. Name");
+        System.out.println("2. Time Period");
+        System.out.println("3. Diet");
+        System.out.println("4. Clade");
+        System.out.println("5. Fossil Location");
+        System.out.println("6. Size");
+        System.out.println("7. Cancel");
+        System.out.print("Choose an option (1-7): ");
 
-        if (replacement == null) {
+        String choice = scanner.nextLine().trim();
+
+        String field;
+        String newValue;
+
+        switch (choice) {
+            case "1":
+                field = "name";
+                newValue = promptForText("Enter the new name: ");
+                break;
+
+            case "2":
+                field = "timePeriod";
+                newValue = promptForText("Enter the new time period: ");
+                break;
+
+            case "3":
+                field = "diet";
+                newValue = promptForText("Enter the new diet: ");
+                break;
+
+            case "4":
+                field = "clade";
+                newValue = promptForText("Enter the new clade: ");
+                break;
+
+            case "5":
+                field = "fossilLocation";
+                newValue = promptForText("Enter the new fossil location: ");
+                break;
+
+            case "6":
+                field = "size";
+                Double newSize = promptForSize("Enter the new size: ");
+
+                if (newSize == null) {
+                    return "Update cancelled. The original record was not changed.";
+                }
+
+                newValue = String.valueOf(newSize);
+                break;
+
+            case "7":
+                return "Update cancelled. The original record was not changed.";
+
+            default:
+                return "Invalid update option. Please select a number from 1 to 7.";
+        }
+
+        if (newValue == null) {
             return "Update cancelled. The original record was not changed.";
         }
 
-        if (manager.updateDinosaur(name, replacement)) {
-            return "Dinosaur updated successfully:\n"
-                    + manager.findDinosaur(replacement.getName());
+        if (manager.updateDinosaurField(name, field, newValue)) {
+            Dinosaur updated = manager.findDinosaur(newValue);
+
+            if (field.equals("name")) {
+                updated = manager.findDinosaur(newValue);
+            } else {
+                updated = manager.findDinosaur(name);
+            }
+
+            return "Dinosaur updated successfully:\n" + updated;
         }
 
-        return "Update rejected. Check the input and ensure the name "
-                + "is not already in use. The original record is unchanged.";
+        return "Update rejected. Check the input and make sure the value is valid "
+                + "and the name is not already in use.";
     }
-
     /** Searches dinosaur records using a supported attribute
      *
      * @return matching records or an appropriate message
      */
     private String searchDinosaurs() {
-        System.out.println("Supported attributes: name, timePeriod, diet, "
-                + "clade, fossilLocation, size");
+        System.out.println("\nWhat would you like to search by?");
+        System.out.println("1. Name");
+        System.out.println("2. Time Period");
+        System.out.println("3. Diet");
+        System.out.println("4. Clade");
+        System.out.println("5. Fossil Location");
+        System.out.println("6. Size");
+        System.out.println("7. Cancel");
+        System.out.print("Choose an option (1-7): ");
 
-        System.out.print("Enter the attribute to search: ");
-        String attribute = scanner.nextLine().trim();
+        String choice = scanner.nextLine().trim();
 
-        if (attribute.isBlank()) {
-            return "Search attribute cannot be blank.";
+        String attribute;
+
+        switch (choice) {
+            case "1":
+                attribute = "name";
+                break;
+
+            case "2":
+                attribute = "timePeriod";
+                break;
+
+            case "3":
+                attribute = "diet";
+                break;
+
+            case "4":
+                attribute = "clade";
+                break;
+
+            case "5":
+                attribute = "fossilLocation";
+                break;
+
+            case "6":
+                attribute = "size";
+                break;
+
+            case "7":
+                return "Search cancelled.";
+
+            default:
+                return "Invalid search option. Please select a number from 1 to 7.";
         }
 
         System.out.print("Enter the value to search for: ");
@@ -305,11 +427,6 @@ public class DinosaurCLI {
 
         if (value.isBlank()) {
             return "Search value cannot be blank.";
-        }
-
-        if (!isSupportedSearchAttribute(attribute)) {
-            return "Unsupported attribute. Please select one of the "
-                    + "six supported attributes.";
         }
 
         List<Dinosaur> results =

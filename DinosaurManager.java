@@ -135,7 +135,73 @@ public class DinosaurManager {
 
         return true;
     }
+    /** Updates one field of an existing dinosaur
+     *
+     * @param name the name of the dinosaur to update
+     * @param field the field to change
+     * @param newValue the new value for the field
+     * @return true if the field was updated; otherwise false
+     */
+    public boolean updateDinosaurField(
+            String name, String field, String newValue) {
 
+        Dinosaur dinosaur = findDinosaur(name);
+
+        if (dinosaur == null
+                || !isValidText(field)
+                || !isValidText(newValue)) {
+            return false;
+        }
+
+        String normalizedField = field.trim().toLowerCase();
+        String value = newValue.trim();
+
+        switch (normalizedField) {
+            case "name":
+                Dinosaur duplicate = findDinosaur(value);
+
+                if (duplicate != null && duplicate != dinosaur) {
+                    return false;
+                }
+
+                dinosaur.setName(value);
+                return true;
+
+            case "timeperiod":
+                dinosaur.setTimePeriod(value);
+                return true;
+
+            case "diet":
+                dinosaur.setDiet(value);
+                return true;
+
+            case "clade":
+                dinosaur.setClade(value);
+                return true;
+
+            case "fossillocation":
+                dinosaur.setFossilLocation(value);
+                return true;
+
+            case "size":
+                try {
+                    double size = Double.parseDouble(value);
+
+                    if (!Double.isFinite(size) || size <= 0) {
+                        return false;
+                    }
+
+                    dinosaur.setSize(size);
+                    return true;
+
+                } catch (NumberFormatException exception) {
+                    return false;
+                }
+
+            default:
+                return false;
+        }
+    }
     /** Searches the collection using a supported attribute
      * Text searches ignore capitalization; size searches use an exact numeric comparison
      *
