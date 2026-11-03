@@ -1,10 +1,10 @@
-
 /** Edgar Lopez
  * CEN 3024C - Software Development 1
  * October 20, 2026
- * Main.app
+ * Main.java
+ *
  * Entry point for the Dinosaur Data Management System
- * Creates the application components and starts the CLI
+ * Creates the application components and starts the GUI
  */
 public class Main {
 
@@ -13,15 +13,14 @@ public class Main {
      * @param args command-line arguments
      */
     public static void main(String[] args) {
+
+        // Create the application components
         DinosaurManager manager = new DinosaurManager();
         DinosaurFileReader fileReader = new DinosaurFileReader();
 
-        DinosaurCLI cli = new DinosaurCLI(manager, fileReader);
-
-        boolean applicationExited = cli.run();
-
-        if (applicationExited) {
-            System.out.println("Application closed successfully.");
-        }
+        // Launch the graphical user interface
+        javax.swing.SwingUtilities.invokeLater(() ->
+                new DinosaurGUI(manager, fileReader)
+        );
     }
 }
