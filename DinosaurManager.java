@@ -11,10 +11,13 @@ import java.util.List;
  */
 public class DinosaurManager {
 
-    // Stores dinosaur records in memory for Phase 1
+    // Maintains an in-memory collection for manager-level operations and testing
+    // Persistent records are stored and managed by DinosaurDatabase
     private final ArrayList<Dinosaur> dinosaurs;
 
-    //Creates an empty dinosaur collection
+    /**
+     * Creates a DinosaurManager with an empty dinosaur collection
+     */
     public DinosaurManager() {
         dinosaurs = new ArrayList<>();
     }

@@ -46,7 +46,7 @@ public class DinosaurFileReader {
 
         } catch (IOException | SecurityException exception) {
             // The caller can detect a failed load by receiving an empty list
-            // Detailed error messages will be handled by the CLI
+            // The calling interface is responsible for user-facing feedback
         } catch (RuntimeException exception) {
             // Handles invalid path syntax or other malformed file input
         }

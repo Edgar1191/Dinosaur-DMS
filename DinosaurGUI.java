@@ -1,6 +1,7 @@
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.*;
 import java.util.List;
 
@@ -12,9 +13,10 @@ public class DinosaurGUI {
     // Main application window
     private JFrame frame;
 
-    // Existing application logic and file reader
+    // Provides validation, file importing, and database access
     private final DinosaurManager manager;
     private final DinosaurFileReader fileReader;
+    private final DinosaurDatabase database;
 
     // Table that displays dinosaur records
     private JTable dinosaurTable;
@@ -31,29 +33,54 @@ public class DinosaurGUI {
     private final Color lightSage = new Color(233, 239, 230);
     private final Color charcoal = new Color(52, 58, 52);
 
-    /** Creates the GUI using the existing manager and file reader
+    /** Creates the GUI using the manager, file reader, and database
      *
      * @param manager the dinosaur manager
      * @param fileReader the dinosaur file reader
+     * @param database the SQLite database connection
      */
-    public DinosaurGUI(DinosaurManager manager,
-                       DinosaurFileReader fileReader) {
+    public DinosaurGUI(
+            DinosaurManager manager,
+            DinosaurFileReader fileReader,
+            DinosaurDatabase database) {
 
         this.manager = manager;
         this.fileReader = fileReader;
+        this.database = database;
 
         createWindow();
     }
 
-    /**
-     * Creates the main application window and its components
-     */
+    // Creates the main application window and its components
     private void createWindow() {
 
         frame = new JFrame("Dinosaur Data Management System");
 
         frame.setSize(1150, 750);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+
+        frame.addWindowListener(new java.awt.event.WindowAdapter() {
+
+            @Override
+            public void windowClosing(java.awt.event.WindowEvent event) {
+
+                try {
+
+                    database.close();
+                    frame.dispose();
+
+                } catch (java.sql.SQLException exception) {
+
+                    JOptionPane.showMessageDialog(
+                            frame,
+                            "Unable to close the database connection:\n"
+                                    + exception.getMessage(),
+                            "Database Closing Error",
+                            JOptionPane.ERROR_MESSAGE
+                    );
+                }
+            }
+        });
         frame.setLocationRelativeTo(null);
 
         // Main application layout
@@ -139,10 +166,10 @@ public class DinosaurGUI {
         loadButton.addActionListener(e -> loadDinosaurFile());
         actionPanel.add(loadButton);
 
-        // Display all dinosaur records
+        // Display all dinosaur records from the database
         JButton displayButton = createButton("Display All");
         displayButton.addActionListener(e ->
-                refreshTable(manager.getAllDinosaurs()));
+                refreshTable(database.getAllDinosaurs()));
         actionPanel.add(displayButton);
 
         // Open the form to add a dinosaur
@@ -155,7 +182,7 @@ public class DinosaurGUI {
         updateButton.addActionListener(e -> updateDinosaur());
         actionPanel.add(updateButton);
 
-        // Remove dinosaur by entering its name
+        // Remove the dinosaur selected in the records table
         JButton removeButton = createButton("Remove Dinosaur");
         removeButton.addActionListener(e -> removeDinosaur());
         actionPanel.add(removeButton);
@@ -168,7 +195,24 @@ public class DinosaurGUI {
         // Exit application
         JButton exitButton = createButton("Exit");
         exitButton.setBackground(new Color(130, 55, 48));
-        exitButton.addActionListener(e -> frame.dispose());
+        exitButton.addActionListener(e -> {
+
+            try {
+
+                database.close();
+                frame.dispose();
+
+            } catch (java.sql.SQLException exception) {
+
+                JOptionPane.showMessageDialog(
+                        frame,
+                        "Unable to close the database connection:\n"
+                                + exception.getMessage(),
+                        "Database Closing Error",
+                        JOptionPane.ERROR_MESSAGE
+                );
+            }
+        });
 
         actionPanel.add(exitButton);
 
@@ -187,14 +231,20 @@ public class DinosaurGUI {
         button.setFont(new Font("Arial", Font.BOLD, 13));
         button.setForeground(Color.WHITE);
         button.setBackground(mossGreen);
+        button.setOpaque(true);
+        button.setContentAreaFilled(true);
+        button.setBorderPainted(false);
         button.setFocusPainted(false);
+
         button.setBorder(
                 BorderFactory.createEmptyBorder(12, 10, 12, 10)
         );
+
         button.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
         return button;
     }
+
 
     /** Creates the panel containing the dinosaur records table
      *
@@ -236,13 +286,50 @@ public class DinosaurGUI {
             }
         };
 
-        dinosaurTable = new JTable(tableModel);
+        // Configure the table to highlight complete selected rows
+        dinosaurTable = new JTable(tableModel) {
+
+            @Override
+            public Component prepareRenderer(
+                    javax.swing.table.TableCellRenderer renderer,
+                    int row,
+                    int column) {
+
+                Component component =
+                        super.prepareRenderer(renderer, row, column);
+
+                // Apply the same selection colors to every cell in the row
+                if (isRowSelected(row)) {
+                    component.setBackground(mossGreen);
+                    component.setForeground(Color.WHITE);
+                } else {
+                    component.setBackground(Color.WHITE);
+                    component.setForeground(charcoal);
+                }
+
+                return component;
+            }
+        };
+
         dinosaurTable.setFont(new Font("Arial", Font.PLAIN, 13));
         dinosaurTable.setRowHeight(28);
-        dinosaurTable.setSelectionBackground(lightSage);
-        dinosaurTable.setSelectionForeground(charcoal);
+
+        // Allow users to select one complete dinosaur record
+        dinosaurTable.setSelectionMode(
+                ListSelectionModel.SINGLE_SELECTION
+        );
+
+        dinosaurTable.setRowSelectionAllowed(true);
+        dinosaurTable.setColumnSelectionAllowed(false);
+        dinosaurTable.setCellSelectionEnabled(false);
+
+        // Set the selected row colors
+        dinosaurTable.setSelectionBackground(mossGreen);
+        dinosaurTable.setSelectionForeground(Color.WHITE);
+
         dinosaurTable.setGridColor(new Color(220, 225, 220));
 
+        // Configure table headers
         dinosaurTable.getTableHeader().setFont(
                 new Font("Arial", Font.BOLD, 13)
         );
@@ -251,6 +338,7 @@ public class DinosaurGUI {
         dinosaurTable.getTableHeader().setForeground(Color.WHITE);
         dinosaurTable.getTableHeader().setReorderingAllowed(false);
 
+        // Place the table inside a scrollable panel
         JScrollPane scrollPane = new JScrollPane(dinosaurTable);
 
         recordsPanel.add(recordsTitle, BorderLayout.NORTH);
@@ -258,6 +346,7 @@ public class DinosaurGUI {
 
         return recordsPanel;
     }
+
 
     /** Opens a form that allows users to manually add a dinosaur
      * Validates the information before adding the record
@@ -342,11 +431,12 @@ public class DinosaurGUI {
                 size
         );
 
-        // Validate and add the dinosaur through the manager
-        if (manager.addDinosaur(newDinosaur)) {
+        // Validate and add the dinosaur through the database
+        if (manager.validateDinosaur(newDinosaur)
+                && database.addDinosaur(newDinosaur)) {
 
             // Refresh the table with the updated collection
-            refreshTable(manager.getAllDinosaurs());
+            refreshTable(database.getAllDinosaurs());
 
             JOptionPane.showMessageDialog(
                     frame,
@@ -357,7 +447,7 @@ public class DinosaurGUI {
 
             statusLabel.setText(
                     "Dinosaur added successfully. Total records: "
-                            + manager.getDinosaurCount()
+                            + database.getDinosaurCount()
             );
 
         } else {
@@ -375,49 +465,46 @@ public class DinosaurGUI {
         }
     }
 
-    /** Removes a dinosaur by asking the user to enter its name
+
+    /** Removes the dinosaur record selected in the table
      * Requests confirmation before deleting the record
      */
     private void removeDinosaur() {
 
-        // Ask the user for the dinosaur's name
-        String name = JOptionPane.showInputDialog(
-                frame,
-                "Enter the name of the dinosaur you want to remove:",
-                "Remove Dinosaur",
-                JOptionPane.QUESTION_MESSAGE
-        );
+        // Check whether a dinosaur row has been selected
+        int selectedRow = dinosaurTable.getSelectedRow();
 
-        // Stop if the user cancels
-        if (name == null) {
-            return;
-        }
-
-        // Reject blank input
-        if (name.isBlank()) {
+        if (selectedRow == -1) {
 
             JOptionPane.showMessageDialog(
                     frame,
-                    "Dinosaur name cannot be blank.",
-                    "Invalid Input",
-                    JOptionPane.ERROR_MESSAGE
+                    "Please select a dinosaur from the table first.",
+                    "No Dinosaur Selected",
+                    JOptionPane.WARNING_MESSAGE
             );
 
             return;
         }
 
-        name = name.trim();
+        // Get the selected dinosaur's name from the table
+        int modelRow = dinosaurTable.convertRowIndexToModel(selectedRow);
 
-        // Check whether the dinosaur exists
-        Dinosaur dinosaur = manager.findDinosaur(name);
+        String name = tableModel.getValueAt(modelRow, 0).toString();
+
+        // Find the selected dinosaur
+        Dinosaur dinosaur = database.getAllDinosaurs()
+                .stream()
+                .filter(d -> d.getName().equalsIgnoreCase(name))
+                .findFirst()
+                .orElse(null);
 
         if (dinosaur == null) {
 
             JOptionPane.showMessageDialog(
                     frame,
-                    "No dinosaur was found with the name: " + name,
-                    "Dinosaur Not Found",
-                    JOptionPane.WARNING_MESSAGE
+                    "The selected dinosaur could not be found.",
+                    "Removal Error",
+                    JOptionPane.ERROR_MESSAGE
             );
 
             return;
@@ -436,10 +523,10 @@ public class DinosaurGUI {
         // Only remove the dinosaur if the user confirms
         if (confirmation == JOptionPane.YES_OPTION) {
 
-            if (manager.removeDinosaur(name)) {
+            if (database.removeDinosaur(name)) {
 
                 // Refresh the table after deletion
-                refreshTable(manager.getAllDinosaurs());
+                refreshTable(database.getAllDinosaurs());
 
                 JOptionPane.showMessageDialog(
                         frame,
@@ -450,11 +537,12 @@ public class DinosaurGUI {
 
                 statusLabel.setText(
                         "Dinosaur removed. Total records: "
-                                + manager.getDinosaurCount()
+                                + database.getDinosaurCount()
                 );
             }
         }
     }
+
 
     // Searches for dinosaur records using a selected attribute and value
     private void searchDinosaurs() {
@@ -544,9 +632,9 @@ public class DinosaurGUI {
             }
         }
 
-        // Perform the search using the existing manager method
+        // Perform the search using the database
         List<Dinosaur> results =
-                manager.searchDinosaurs(attribute, searchValue);
+                database.searchDinosaurs(attribute, searchValue);
 
         // Display matching records
         refreshTable(results);
@@ -571,55 +659,49 @@ public class DinosaurGUI {
         }
     }
 
-    /** Updates an existing dinosaur using a form containing its current values
-     * Allows users to change one or more of the six attributes
-     */
+
+    // Updates the dinosaur record selected in the table
     private void updateDinosaur() {
 
-        // Ask the user which dinosaur they want to update
-        String name = JOptionPane.showInputDialog(
-                frame,
-                "Enter the name of the dinosaur you want to update:",
-                "Update Dinosaur",
-                JOptionPane.QUESTION_MESSAGE
-        );
+        // Check whether a dinosaur row has been selected
+        int selectedRow = dinosaurTable.getSelectedRow();
 
-        // Stop if the user cancels
-        if (name == null) {
-            return;
-        }
-
-        // Reject blank input
-        if (name.isBlank()) {
+        if (selectedRow == -1) {
 
             JOptionPane.showMessageDialog(
                     frame,
-                    "Dinosaur name cannot be blank.",
-                    "Invalid Input",
-                    JOptionPane.ERROR_MESSAGE
-            );
-
-            return;
-        }
-
-        name = name.trim();
-
-        // Find the existing dinosaur
-        Dinosaur existingDinosaur = manager.findDinosaur(name);
-
-        if (existingDinosaur == null) {
-
-            JOptionPane.showMessageDialog(
-                    frame,
-                    "No dinosaur was found with the name: " + name,
-                    "Dinosaur Not Found",
+                    "Please select a dinosaur from the table first.",
+                    "No Dinosaur Selected",
                     JOptionPane.WARNING_MESSAGE
             );
 
             return;
         }
 
-        // Create input fields containing the current dinosaur information
+        // Get the selected dinosaur's name from the table
+        int modelRow = dinosaurTable.convertRowIndexToModel(selectedRow);
+
+        String name = tableModel.getValueAt(modelRow, 0).toString();
+
+        Dinosaur existingDinosaur = database.getAllDinosaurs()
+                .stream()
+                .filter(d -> d.getName().equalsIgnoreCase(name))
+                .findFirst()
+                .orElse(null);
+
+        if (existingDinosaur == null) {
+
+            JOptionPane.showMessageDialog(
+                    frame,
+                    "The selected dinosaur could not be found.",
+                    "Update Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
+
+            return;
+        }
+
+        // Create fields containing the existing dinosaur information
         JTextField nameField =
                 new JTextField(existingDinosaur.getName());
 
@@ -638,10 +720,10 @@ public class DinosaurGUI {
         JTextField sizeField =
                 new JTextField(String.valueOf(existingDinosaur.getSize()));
 
-        // Create the update form
+        // Arrange the input fields in a form
         JPanel inputPanel = new JPanel(new GridLayout(6, 2, 8, 8));
 
-        inputPanel.add(new JLabel("Dinosaur Name:"));
+        inputPanel.add(new JLabel("Name:"));
         inputPanel.add(nameField);
 
         inputPanel.add(new JLabel("Time Period:"));
@@ -659,7 +741,7 @@ public class DinosaurGUI {
         inputPanel.add(new JLabel("Size:"));
         inputPanel.add(sizeField);
 
-        // Display the form
+        // Display the update form
         int result = JOptionPane.showConfirmDialog(
                 frame,
                 inputPanel,
@@ -681,9 +763,9 @@ public class DinosaurGUI {
         String updatedFossilLocation =
                 fossilLocationField.getText().trim();
 
-        // Convert the updated size into a numeric value
         double updatedSize;
 
+        // Validate the size input
         try {
 
             updatedSize = Double.parseDouble(
@@ -702,7 +784,7 @@ public class DinosaurGUI {
             return;
         }
 
-        // Create a replacement dinosaur with the updated information
+        // Create the updated dinosaur object
         Dinosaur updatedDinosaur = new Dinosaur(
                 updatedName,
                 updatedTimePeriod,
@@ -712,94 +794,96 @@ public class DinosaurGUI {
                 updatedSize
         );
 
-        // Update the existing record through DinosaurManager
-        if (manager.updateDinosaur(name, updatedDinosaur)) {
+        // Save the changes through the manager
+        if (manager.validateDinosaur(updatedDinosaur)
+                && database.updateDinosaur(name, updatedDinosaur)) {
 
-            // Refresh the table with the updated information
-            refreshTable(manager.getAllDinosaurs());
+            refreshTable(database.getAllDinosaurs());
 
             JOptionPane.showMessageDialog(
                     frame,
-                    "Dinosaur information was successfully updated!",
-                    "Update Successful",
+                    "Dinosaur information updated successfully.",
+                    "Update Complete",
                     JOptionPane.INFORMATION_MESSAGE
-            );
-
-            statusLabel.setText(
-                    "Dinosaur updated successfully. Total records: "
-                            + manager.getDinosaurCount()
             );
 
         } else {
 
             JOptionPane.showMessageDialog(
                     frame,
-                    "Dinosaur information could not be updated.\n\n"
-                            + "Please check that:\n"
-                            + "- All fields contain information.\n"
-                            + "- The dinosaur name is unique.\n"
-                            + "- Size is a positive, finite number.",
-                    "Invalid Dinosaur Information",
+                    "The update could not be completed. "
+                            + "Check that all fields contain valid information, "
+                            + "the name is unique, and the size is positive.",
+                    "Update Error",
                     JOptionPane.ERROR_MESSAGE
             );
         }
     }
 
-    // Opens a file chooser and loads dinosaur records
+
+
+    /**
+     * Opens a file chooser and imports dinosaur records from a text file into the SQLite database
+     */
     private void loadDinosaurFile() {
 
         JFileChooser fileChooser = new JFileChooser();
 
         int result = fileChooser.showOpenDialog(frame);
 
-        if (result == JFileChooser.APPROVE_OPTION) {
+        if (result != JFileChooser.APPROVE_OPTION) {
+            return;
+        }
 
-            String filePath = fileChooser.getSelectedFile()
-                    .getAbsolutePath();
+        String filePath = fileChooser.getSelectedFile()
+                .getAbsolutePath();
 
-            // Read records using the existing file reader
-            List<Dinosaur> loadedDinosaurs =
-                    fileReader.loadDinosaurs(filePath);
+        // Read records from the selected text file
+        List<Dinosaur> loadedDinosaurs =
+                fileReader.loadDinosaurs(filePath);
 
-            if (loadedDinosaurs.isEmpty()) {
-
-                JOptionPane.showMessageDialog(
-                        frame,
-                        "No valid dinosaur records were loaded. "
-                                + "Check the file and its contents.",
-                        "File Loading Error",
-                        JOptionPane.WARNING_MESSAGE
-                );
-
-                return;
-            }
-
-            int addedCount = 0;
-
-            // Add records through the existing manager
-            for (Dinosaur dinosaur : loadedDinosaurs) {
-
-                if (manager.addDinosaur(dinosaur)) {
-                    addedCount++;
-                }
-            }
-
-            // Refresh the table with the current records
-            refreshTable(manager.getAllDinosaurs());
-
-            statusLabel.setText(
-                    "Successfully loaded " + addedCount
-                            + " dinosaur records."
-            );
+        if (loadedDinosaurs.isEmpty()) {
 
             JOptionPane.showMessageDialog(
                     frame,
-                    addedCount + " dinosaur records were successfully loaded.",
-                    "File Loading Complete",
-                    JOptionPane.INFORMATION_MESSAGE
+                    "No valid dinosaur records were loaded. "
+                            + "Check the file and its contents.",
+                    "File Loading Error",
+                    JOptionPane.WARNING_MESSAGE
             );
+
+            return;
         }
+
+        int addedCount = 0;
+
+        // Validate and save each record to SQLite
+        for (Dinosaur dinosaur : loadedDinosaurs) {
+
+            if (manager.validateDinosaur(dinosaur)
+                    && database.addDinosaur(dinosaur)) {
+
+                addedCount++;
+            }
+        }
+
+        // Refresh the table using database records
+        refreshTable(database.getAllDinosaurs());
+
+        statusLabel.setText(
+                "Successfully imported " + addedCount
+                        + " dinosaur records."
+        );
+
+        JOptionPane.showMessageDialog(
+                frame,
+                addedCount + " dinosaur records were successfully "
+                        + "saved to the database.",
+                "File Loading Complete",
+                JOptionPane.INFORMATION_MESSAGE
+        );
     }
+
 
     /** Refreshes the table with the current dinosaur records
      *
