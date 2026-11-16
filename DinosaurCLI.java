@@ -2,12 +2,20 @@
 import java.util.List;
 import java.util.Scanner;
 
-/** Edgar Lopez
+/**
+ * Edgar Lopez
  * CEN 3024C - Software Development 1
- * October 20, 2026
+ * November 16, 2026
  * DinosaurCLI.java
- * Provides the command-line interface for the Dinosaur DMS
- * Displays the menu, collects input, and presents results
+ *
+ * Provides a command-line interface for the Dinosaur Data Management System.
+ * Allows users to interact with dinosaur records through a text-based menu.
+ *
+ * The interface supports importing dinosaur records from a text file, displaying records, adding new dinosaurs,
+ * removing records, updating attributes, and searching or filtering dinosaur information.
+ *
+ * Connects the user interface to the DinosaurManager and DinosaurFileReader classes to support the application's
+ * data management functionality.
  */
 public class DinosaurCLI {
 
@@ -15,10 +23,11 @@ public class DinosaurCLI {
     private final DinosaurManager manager;
     private final DinosaurFileReader fileReader;
 
-    /** Creates the CLI and connects it to the manager and file reader
+    /**
+     * Creates the command-line interface and connects it to the dinosaur manager and file reader
      *
-     * @param manager the dinosaur data manager
-     * @param fileReader the file reader
+     * @param manager the component responsible for managing dinosaur records
+     * @param fileReader the component responsible for loading dinosaur data
      */
     public DinosaurCLI(DinosaurManager manager,
                        DinosaurFileReader fileReader) {
@@ -27,9 +36,10 @@ public class DinosaurCLI {
         this.fileReader = fileReader;
     }
 
-    /** Runs the menu until the user chooses to exit
+    /**
+     * Displays the command-line menu and processes user selections until the user chooses to exit the application.
      *
-     * @return true when the application exits normally
+     * @return true when the user exits the menu normally
      */
     public boolean run() {
         boolean running = true;
@@ -66,9 +76,11 @@ public class DinosaurCLI {
         return !running;
     }
 
-    /** Loads dinosaur records from a user-specified text file
+    /**
+     * Loads dinosaur records from a user-specified text file and attempts to add valid records to the manager.
+     * Reports the number of records added and rejected.
      *
-     * @return a message describing the loading result
+     * @return a message describing the file loading results
      */
     private String loadFromFile() {
         System.out.print("Enter the path to the dinosaur text file: ");
@@ -102,9 +114,10 @@ public class DinosaurCLI {
                 + " duplicate or invalid record(s).";
     }
 
-    /** Displays every stored dinosaur
+    /**
+     * Retrieves and formats all currently stored dinosaur records for display in the command-line interface.
      *
-     * @return a formatted list of records or an empty-collection message
+     * @return a formatted list of records or a message if none exist
      */
     private String displayDinosaurs() {
         List<Dinosaur> dinosaurs = manager.getAllDinosaurs();
@@ -124,9 +137,10 @@ public class DinosaurCLI {
         return output.toString();
     }
 
-    /** Collects and validates the information for a new dinosaur
+    /**
+     * Collects dinosaur information, validates the new record, and attempts to add it to the manager.
      *
-     * @return a message describing the result
+     * @return a message describing the result of the operation
      */
     private String addDinosaur() {
         Dinosaur dinosaur = promptForDinosaur();
@@ -143,7 +157,9 @@ public class DinosaurCLI {
                 + "and make sure the name is unique.";
     }
 
-    /** Prompts for all six dinosaur attributes
+    /**
+     * Collects all six dinosaur attributes from the user and validates the information before creating a dinosaur
+     * object.
      *
      * @return a valid dinosaur object, or null if input is invalid
      */
@@ -193,11 +209,6 @@ public class DinosaurCLI {
         return dinosaur;
     }
 
-    /** Prompts for nonblank text
-     *
-     * @param prompt the message shown to the user
-     * @return trimmed text, or null if the input is blank
-     */
     private String promptForText(String prompt) {
         System.out.print(prompt);
         String value = scanner.nextLine().trim();
@@ -210,11 +221,6 @@ public class DinosaurCLI {
         return value;
     }
 
-    /** Prompts for a finite and positive numeric size
-     *
-     * @param prompt the message shown to the user
-     * @return the valid size, or null if the input is invalid
-     */
     private Double promptForSize(String prompt) {
         System.out.print(prompt);
         String input = scanner.nextLine().trim();
@@ -236,9 +242,10 @@ public class DinosaurCLI {
     }
 
 
-    /** Removes a dinosaur selected by name after confirmation
+    /**
+     * Finds a dinosaur by name, requests user confirmation, and attempts to remove the selected record.
      *
-     * @return a message describing the result
+     * @return a message describing the result of the removal
      */
     private String removeDinosaur() {
         System.out.print("Enter the name of the dinosaur to remove: ");
@@ -272,9 +279,10 @@ public class DinosaurCLI {
     }
 
 
-    /** Updates one field of an existing dinosaur
+    /**
+     * Allows the user to select an existing dinosaur and update one of its attributes after validating the new value.
      *
-     * @return a message describing the result
+     * @return a message describing the result of the update
      */
     private String updateDinosaur() {
         System.out.print("Enter the name of the dinosaur to update: ");
@@ -371,9 +379,10 @@ public class DinosaurCLI {
         return "Update rejected. Check the input and make sure the value is valid "
                 + "and the name is not already in use.";
     }
-    /** Searches dinosaur records using a supported attribute
+    /**
+     * Allows the user to select a dinosaur attribute and search the manager for records matching the specified value.
      *
-     * @return matching records or an appropriate message
+     * @return matching records or a message describing the search result
      */
     private String searchDinosaurs() {
         System.out.println("\nWhat would you like to search by?");

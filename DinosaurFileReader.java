@@ -6,22 +6,26 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Edgar Lopez
+/**
+ * Edgar Lopez
  * CEN 3024C - Software Development 1
- * October 19, 2026
+ * November 16, 2026
  * DinosaurFileReader.java
- * Reads dinosaur records from a text file
+ *
+ * Reads dinosaur records from a text file and converts valid records into Dinosaur objects for use in the
+ * Dinosaur Data Management System.
  *
  * Expected format for each line:
  * name|timePeriod|diet|clade|fossilLocation|size
  */
 public class DinosaurFileReader {
 
-    /** Loads valid dinosaur records from the specified file
-     * Invalid lines are skipped rather than crashing the program
+    /**
+     * Loads valid dinosaur records from the specified text file
+     * Invalid records and duplicate names are skipped
      *
      * @param filePath the path to the text file
-     * @return a list of valid dinosaur records, or an empty list
+     * @return a list of valid dinosaur records, or an empty list if no valid records are loaded
      */
     public List<Dinosaur> loadDinosaurs(String filePath) {
         List<Dinosaur> loadedDinosaurs = new ArrayList<>();
@@ -45,8 +49,7 @@ public class DinosaurFileReader {
             }
 
         } catch (IOException | SecurityException exception) {
-            // The caller can detect a failed load by receiving an empty list
-            // The calling interface is responsible for user-facing feedback
+           // File access or security errors are handled by returning the records loaded so far
         } catch (RuntimeException exception) {
             // Handles invalid path syntax or other malformed file input
         }
@@ -54,7 +57,8 @@ public class DinosaurFileReader {
         return loadedDinosaurs;
     }
 
-    /** Converts one line of text into a dinosaur object
+    /**
+     * Converts one line of text into a dinosaur object
      *
      * @param line one line from the input file
      * @return a valid dinosaur, or null if the line is invalid
@@ -90,11 +94,6 @@ public class DinosaurFileReader {
         return isValidDinosaur(dinosaur) ? dinosaur : null;
     }
 
-    /** Checks required text fields and the numeric size
-     *
-     * @param dinosaur the record to validate
-     * @return true if the record contains valid text fields and a positive and finite size; otherwise false
-     */
     private boolean isValidDinosaur(Dinosaur dinosaur) {
         return dinosaur != null
                 && isValidText(dinosaur.getName())
@@ -106,21 +105,10 @@ public class DinosaurFileReader {
                 && dinosaur.getSize() > 0;
     }
 
-    /** Checks whether a text field contains nonblank text
-     *
-     * @param value the text to check
-     * @return true if the value is not null and not blank; otherwise false
-     */
     private boolean isValidText(String value) {
         return value != null && !value.isBlank();
     }
 
-    /** Prevents duplicate names in the records read from the file
-     *
-     * @param dinosaurs records already loaded
-     * @param name the proposed name
-     * @return true if the name is unique
-     */
     private boolean isUniqueName(List<Dinosaur> dinosaurs, String name) {
         for (Dinosaur dinosaur : dinosaurs) {
             if (dinosaur.getName().equalsIgnoreCase(name)) {

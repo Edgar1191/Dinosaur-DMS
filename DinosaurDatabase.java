@@ -8,15 +8,24 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Manages the SQLite database for the Dinosaur Data Management System
- * Handles database connections and dinosaur record operations, including adding, retrieving, searching, updating,
- * and removing records
+/**
+ * Edgar Lopez
+ * CEN 3024C - Software Developement 1
+ * November 16, 2026
+ * DinosaurDatabase.java
+ *
+ * Manages the SQLite database for the Dinosaur Data Management System.
+ * Establishes database connections and provides operations for creating, adding, retrieving, searching, and removing
+ * dinosaur records.
+ * This class provides persistent storage for the dinosaur information managed by the application.
  */
 public class DinosaurDatabase implements AutoCloseable{
 
     private Connection connection;
 
-    /** Connects to the SQLite database at the supplied file path
+    /**
+     * Connects to the SQLite database at the supplied file path and creates the dinosaurs table if it does not
+     * already exist.
      *
      * @param databasePath the location of the SQLite database file
      * @throws SQLException if the database connection fails
@@ -32,7 +41,8 @@ public class DinosaurDatabase implements AutoCloseable{
         createTable();
     }
 
-    /** Creates the dinosaurs table if it does not already exist
+    /**
+     * Creates the dinosaurs table if it does not already exist
      *
      * @throws SQLException if the table cannot be created
      */
@@ -54,9 +64,10 @@ public class DinosaurDatabase implements AutoCloseable{
         }
     }
 
-    /** Checks whether the database connection is active
+    /**
+     * Checks whether the database connection is active
      *
-     * @return true if the connection is open, otherwise false
+     * @return true if the connection is open; otherwise false
      */
     public boolean isConnected() {
 
@@ -68,7 +79,8 @@ public class DinosaurDatabase implements AutoCloseable{
         }
     }
 
-    /** Closes the database connection
+    /**
+     * Closes the database connection if it is open
      *
      * @throws SQLException if the connection cannot be closed
      */
@@ -80,10 +92,11 @@ public class DinosaurDatabase implements AutoCloseable{
         }
     }
 
-    /** Adds a dinosaur record to the database
+    /**
+     * Adds a dinosaur record to the database
      *
      * @param dinosaur the dinosaur to add
-     * @return true if the record was added successfully
+     * @return true if the record was added successfully; otherwise false
      */
     public boolean addDinosaur(Dinosaur dinosaur) {
 
@@ -113,9 +126,11 @@ public class DinosaurDatabase implements AutoCloseable{
         }
     }
 
-    /** Retrieves all dinosaur records from the database
+    /**
+     * Retrieves all dinosaur records from the database, ordered by name
      *
-     * @return a list containing all dinosaurs
+     * @return a list containing all dinosaurs; an empty or partially populated list may be returned if a database
+     *         error occurs
      */
     public List<Dinosaur> getAllDinosaurs() {
 
@@ -150,12 +165,13 @@ public class DinosaurDatabase implements AutoCloseable{
     }
 
 
-    /** Searches dinosaur records using an exact attribute match
-     * Text searches ignore capitalization, while size searches use an exact numeric comparison
+    /**
+     * Searches dinosaur records using an exact attribute match.
+     * Text searches ignore capitalization, while size searches use an exact numeric comparison.
      *
      * @param attribute the attribute to search
      * @param value the value to search for
-     * @return a list of matching dinosaurs
+     * @return a list of matching dinosaurs, or an empty list if the search criteria are invalid or no matches are found
      */
     public List<Dinosaur> searchDinosaurs(
             String attribute, String value) {
@@ -247,11 +263,12 @@ public class DinosaurDatabase implements AutoCloseable{
     }
 
 
-    /** Updates an existing dinosaur record
+    /**
+     * Updates an existing dinosaur record
      *
      * @param originalName the current dinosaur name
      * @param dinosaur the updated dinosaur information
-     * @return true if a record was updated
+     * @return true if a record was updated successfully; otherwise false
      */
     public boolean updateDinosaur(
             String originalName, Dinosaur dinosaur) {
@@ -287,10 +304,11 @@ public class DinosaurDatabase implements AutoCloseable{
         }
     }
 
-    /** Removes a dinosaur record from the database
+    /**
+     * Removes a dinosaur record from the database
      *
      * @param name the name of the dinosaur to remove
-     * @return true if a record was removed
+     * @return true if a record was removed; otherwise false
      */
     public boolean removeDinosaur(String name) {
 
@@ -310,9 +328,10 @@ public class DinosaurDatabase implements AutoCloseable{
         }
     }
 
-    /** Returns the total number of dinosaur records
+    /**
+     * Returns the total number of dinosaur records in the database
      *
-     * @return the number of records in the database
+     * @return the number of records in the database, or zero if a database error occurs
      */
     public int getDinosaurCount() {
 

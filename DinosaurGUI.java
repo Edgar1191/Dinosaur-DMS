@@ -1,12 +1,19 @@
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.*;
 import java.util.List;
 
-/** Provides the graphical user interface for the Dinosaur Data Management System
- * Allows users to interact with dinosaur records through a Swing application
+/**
+ * Edgar Lopez
+ * CEN 3024C - Software Development 1
+ * November 16, 2026
+ * DinosaurGUI.java
+ *
+ * Provides the graphical user interface for the Dinosaur Data Management System.
+ * Allows users to add, display, update, remove, search, and import dinosaur records through a Java Swing application.
+ * Connects the user interface to the dinosaur manager, file reader, and SQLite database to support the overall
+ * objective of managing dinosaur information.
  */
 public class DinosaurGUI {
 
@@ -33,7 +40,8 @@ public class DinosaurGUI {
     private final Color lightSage = new Color(233, 239, 230);
     private final Color charcoal = new Color(52, 58, 52);
 
-    /** Creates the GUI using the manager, file reader, and database
+    /**
+     * Creates the GUI using the manager, file reader, and database
      *
      * @param manager the dinosaur manager
      * @param fileReader the dinosaur file reader
@@ -51,7 +59,10 @@ public class DinosaurGUI {
         createWindow();
     }
 
-    // Creates the main application window and its components
+    /**
+     * Creates and displays the main application window, including its header, operation buttons, records table, and
+     * status panel.
+     */
     private void createWindow() {
 
         frame = new JFrame("Dinosaur Data Management System");
@@ -101,7 +112,8 @@ public class DinosaurGUI {
         frame.setVisible(true);
     }
 
-    /** Creates the application header
+    /**
+     * Creates the application header
      *
      * @return the header panel
      */
@@ -142,7 +154,8 @@ public class DinosaurGUI {
         return headerPanel;
     }
 
-    /** Creates the panel containing application operation buttons
+    /**
+     * Creates the panel containing application operation buttons
      *
      * @return the action panel
      */
@@ -219,7 +232,8 @@ public class DinosaurGUI {
         return actionPanel;
     }
 
-    /** Creates consistently styled application buttons
+    /**
+     * Creates consistently styled application buttons
      *
      * @param text the button label
      * @return the styled button
@@ -246,7 +260,8 @@ public class DinosaurGUI {
     }
 
 
-    /** Creates the panel containing the dinosaur records table
+    /**
+     * Creates the panel containing the dinosaur records table
      *
      * @return the records panel
      */
@@ -348,8 +363,9 @@ public class DinosaurGUI {
     }
 
 
-    /** Opens a form that allows users to manually add a dinosaur
-     * Validates the information before adding the record
+    /**
+     * Opens a form that allows users to manually add a dinosaur record.
+     * Validates the information and saves the record to the database if all required values are valid.
      */
     private void addDinosaur() {
 
@@ -466,8 +482,8 @@ public class DinosaurGUI {
     }
 
 
-    /** Removes the dinosaur record selected in the table
-     * Requests confirmation before deleting the record
+    /**
+     * Removes the dinosaur record selected in the table after requesting confirmation from the user
      */
     private void removeDinosaur() {
 
@@ -544,7 +560,10 @@ public class DinosaurGUI {
     }
 
 
-    // Searches for dinosaur records using a selected attribute and value
+    /**
+     * Allows the user to search dinosaur records by selecting an attribute and entering a search value.
+     * Displays matching records in the application table.
+     */
     private void searchDinosaurs() {
 
         // Available attributes users can search
@@ -660,7 +679,10 @@ public class DinosaurGUI {
     }
 
 
-    // Updates the dinosaur record selected in the table
+    /**
+     * Opens a form containing the selected dinosaur's current information.
+     * Validates the updated information and saves the changes to the database if the replacement information is valid.
+     */
     private void updateDinosaur() {
 
         // Check whether a dinosaur row has been selected
@@ -823,7 +845,8 @@ public class DinosaurGUI {
 
 
     /**
-     * Opens a file chooser and imports dinosaur records from a text file into the SQLite database
+     * Opens a file chooser and imports dinosaur records from a selected text file.
+     * Validates the records and saves valid entries to the SQLite database.
      */
     private void loadDinosaurFile() {
 
@@ -885,9 +908,10 @@ public class DinosaurGUI {
     }
 
 
-    /** Refreshes the table with the current dinosaur records
+    /**
+     * Refreshes the application table with the supplied dinosaur records and updates the status message
      *
-     * @param dinosaurs the records to display
+     * @param dinosaurs the dinosaur records to display
      */
     private void refreshTable(List<Dinosaur> dinosaurs) {
 
@@ -915,7 +939,8 @@ public class DinosaurGUI {
         );
     }
 
-    /** Creates the bottom status bar
+    /**
+     * Creates the bottom status bar
      *
      * @return the status panel
      */

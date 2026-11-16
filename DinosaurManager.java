@@ -2,12 +2,15 @@
 import java.util.ArrayList;
 import java.util.List;
 
-/** Edgar Lopez
+/**
+ * Edgar Lopez
  * CEN 3024C - Software Development 1
- * October 19, 2026
+ * November 16, 2026
  * DinosaurManager.java
- * Manages the dinosaur collection and provides operations for creating, reading, updating, deleting,
- * and searching records
+ *
+ * Manages the dinosaur collection and provides operations for validating, adding, finding, updating, removing, and
+ * searching dinosaur records.
+ * This class supports the overall program objective of organizing and managing dinosaur information
  */
 public class DinosaurManager {
 
@@ -22,7 +25,8 @@ public class DinosaurManager {
         dinosaurs = new ArrayList<>();
     }
 
-    /** Checks whether a dinosaur contains valid attribute values
+    /**
+     * Checks whether a dinosaur contains valid attribute values
      *
      * @param dinosaur the dinosaur to validate
      * @return true if all attributes are valid; otherwise false
@@ -38,16 +42,12 @@ public class DinosaurManager {
                 && dinosaur.getSize() > 0;
     }
 
-    /** Checks whether a text value is present and not blank
-     *
-     * @param value the text to check
-     * @return true if the value is not null and not blank; otherwise false
-     */
     private boolean isValidText(String value) {
         return value != null && !value.isBlank();
     }
 
-    /** Adds a valid dinosaur if its name is not already in use
+    /**
+     * Adds a valid dinosaur if its name is not already in use
      *
      * @param dinosaur the dinosaur to add
      * @return true if added; otherwise false
@@ -62,7 +62,8 @@ public class DinosaurManager {
         return true;
     }
 
-    /** Returns a copy of the current dinosaur collection
+    /**
+     * Returns a copy of the current dinosaur collection
      *
      * @return a new list containing the stored dinosaur references
      */
@@ -70,7 +71,8 @@ public class DinosaurManager {
         return new ArrayList<>(dinosaurs);
     }
 
-    /** Finds a dinosaur by its unique name
+    /**
+     * Finds a dinosaur by its unique name
      *
      * @param name the name to find
      * @return the matching dinosaur, or null if not found
@@ -89,7 +91,8 @@ public class DinosaurManager {
         return null;
     }
 
-    /** Removes a dinosaur by name
+    /**
+     * Removes a dinosaur by name
      *
      * @param name the name of the dinosaur to remove
      * @return true if removed; otherwise false
@@ -104,7 +107,8 @@ public class DinosaurManager {
         return dinosaurs.remove(dinosaur);
     }
 
-    /** Updates a dinosaur while preserving the original record if the replacement data is invalid
+    /**
+     * Updates a dinosaur while preserving the original record if the replacement data is invalid
      *
      * @param name the existing dinosaur's name
      * @param updatedDinosaur the replacement dinosaur data
@@ -138,7 +142,8 @@ public class DinosaurManager {
 
         return true;
     }
-    /** Updates one field of an existing dinosaur
+    /**
+     * Updates one field of an existing dinosaur
      *
      * @param name the name of the dinosaur to update
      * @param field the field to change
@@ -205,12 +210,13 @@ public class DinosaurManager {
                 return false;
         }
     }
-    /** Searches the collection using a supported attribute
+    /**
+     * Searches the collection using a supported attribute
      * Text searches ignore capitalization; size searches use an exact numeric comparison
      *
      * @param attribute the attribute to search
      * @param value the value to match
-     * @return matching dinosaurs, or an empty list for invalid criteria
+     * @return a list of matching dinosaurs, or an empty list if no matches exist or if the search criteria are invalid
      */
     public List<Dinosaur> searchDinosaurs(
             String attribute, String value) {
@@ -270,11 +276,6 @@ public class DinosaurManager {
         return results;
     }
 
-    /** Checks whether a search attribute is supported
-     *
-     * @param attribute the normalized attribute name
-     * @return true if supported; otherwise false
-     */
     private boolean isSupportedAttribute(String attribute) {
         return attribute.equals("name")
                 || attribute.equals("timeperiod")
@@ -284,7 +285,8 @@ public class DinosaurManager {
                 || attribute.equals("size");
     }
 
-    /** Returns the number of dinosaur records
+    /**
+     * Returns the number of dinosaur records in the collection
      *
      * @return the current collection size
      */
